@@ -7,9 +7,42 @@ import Categorias from './assets/pages/Categorias/categorias';
 import Eventos from './assets/pages/Eventos/eventos';
 import Login from './assets/pages/Login/login';
 import NotFound from './assets/pages/NotFound/notFound'
+
 import * as serviceWorker from './serviceWorker';
 //Import da rota no browser
-    import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
+import './assets/css/flexbox.css';
+import './assets/css/reset.css';
+import './assets/css/style.css';
+// import './assets/img';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap-css-only/css/bootstrap.min.css';
+import 'mdbreact/dist/css/mdb.css';
+import { usuarioAutenticado, parseJwt } from './services/auth';
+
+const PermissaoAdmin=({component : Component}) =>(
+    <Route
+        render={props =>
+        usuarioAutenticado() && parseJwt().Role === "ADMINISTRADOR" ? (
+            <Component {...props}/>
+        ):(
+            <Redirect to ={{pathname: "/login"}}/>
+        )
+    }
+    />
+)
+
+const PermissaoAluno=({component : Component}) =>(
+    <Route
+        render={props =>
+        usuarioAutenticado() && parseJwt().Role === "ALUNO" ? (
+            <Component {...props}/>
+        ):(
+            <Redirect to ={{pathname: "/login"}}/>
+        )
+    }
+    />
+)
 
 //Variavel para criação das rotas
 const routes = (
@@ -19,8 +52,8 @@ const routes = (
             {/* //Separação de rotas, colocando cada um em uma janela */}
             <Switch>
                 <Route exact path="/" component={App} />
-                <Route path="/categorias" component={ () => <Categorias titulo_pagina = "Categorias - Gufos"/>} />
-                <Route path= "/eventos" component={ () => <Eventos/> }/>
+                <PermissaoAdmin path="/categoria" component={Categorias} />
+                <PermissaoAluno path= "/eventos" component={Eventos }/>
                 <Route path= "/login" component= {Login}/>
                 <Route component={NotFound} />
             </Switch>
